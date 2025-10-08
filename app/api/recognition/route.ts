@@ -29,10 +29,16 @@ export async function POST(request: NextRequest) {
 
     // 构建火山引擎 API 请求
     const apiKey = process.env.ARK_API_KEY;
+    console.log('Environment variables check:', {
+      hasApiKey: !!apiKey,
+      nodeEnv: process.env.NODE_ENV
+    });
+
     if (!apiKey) {
       console.error('ARK_API_KEY not found in environment variables');
+      console.error('Available env keys:', Object.keys(process.env).filter(k => k.includes('ARK')));
       return NextResponse.json(
-        { error: 'API配置错误，请联系管理员' },
+        { error: 'API配置错误，请联系管理员。请确保已重启开发服务器。' },
         { status: 500 }
       );
     }
