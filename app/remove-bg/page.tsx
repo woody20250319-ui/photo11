@@ -47,8 +47,15 @@ export default function RemoveBgPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '去除背景失败');
+        let errorMessage = '去除背景失败';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // 如果响应不是JSON，使用默认错误消息
+          errorMessage = `去除背景失败 (${response.status})`;
+        }
+        throw new Error(errorMessage);
       }
 
       // 将响应转换为Blob然后创建URL

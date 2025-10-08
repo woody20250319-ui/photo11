@@ -26,10 +26,29 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Remove.bg API error:', errorText);
+      let errorMessage = '去除背景失败，请稍后重试';
+
+      try {
+        const errorData = await response.json();
+        console.error('Remove.bg API error:', errorData);
+
+        // 根据错误类型提供更具体的错误信息
+        if (errorData.errors && errorData.errors[0]) {
+          const error = errorData.errors[0];
+          if (error.code === 'insufficient_credits') {
+            errorMessage = 'API 配额不足，请联系管理员';
+          } else if (error.title) {
+            errorMessage = error.title;
+          }
+        }
+      } catch {
+        // 如果不是JSON响应，使用文本
+        const errorText = await response.text();
+        console.error('Remove.bg API error text:', errorText);
+      }
+
       return NextResponse.json(
-        { error: '去除背景失败，请稍后重试' },
+        { error: errorMessage },
         { status: response.status }
       );
     }
